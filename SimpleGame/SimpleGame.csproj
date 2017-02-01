@@ -47,6 +47,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actor.cs" />
+    <Compile Include="DeleteList.cs" />
+    <Compile Include="Enemy.cs" />
+    <Compile Include="IMarkDelete.cs" />
     <Compile Include="Values.cs" />
     <Compile Include="Form1.cs">
       <SubType>Component</SubType>
@@ -90,6 +94,7 @@
     <Content Include="charcrouch.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="enemy.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

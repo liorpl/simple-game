@@ -8,62 +8,48 @@ using static SimpleGame.Values;
 
 namespace SimpleGame
 {
-    public class Player
+    public class Player : Actor
     {
-        Bitmap character1 = new Bitmap("char.png");
-        Bitmap character2 = new Bitmap("charcrouch.png");
+        //Bitmap character1 = new Bitmap("char.png");
+        //Bitmap character2 = new Bitmap("charcrouch.png");
 
-        Bitmap character => crouch ? character2 : character1;
+        //Bitmap character => crouch ? character2 : character1;
 
-        public Rectangle rect = new Rectangle(10, 10, 64, 64);
 
-        public bool flip, previousflip = false;
-        bool gravity = false;        
-        public int downspeed = 0;
+        public Player() : base(new Rectangle(10, 10, 64, 64))
+        {
+            images[0] = new Bitmap("char.png");
+            images[1] = new Bitmap("charcrouch.png");
+        }
+
         public bool crouch = false;
 
-        public void Step(ulong ticknum)
+        public override void Step(ulong ticknum)
         {
-            if (gravity)
-            {
-                if (ticknum % 5 == 0) downspeed++;
-                //rect.Y = testloc;
-            }
-
-            if (rect.Bottom > Form1.BoundsRect.Bottom) { rect.Y = 0; }
+            base.Step(ticknum);
+            currentchar = Convert.ToInt32(crouch);
             
-            trymovedown();
-        }
 
-        public void trymove(RectAction a)
-        {
-            Rectangle testr = rect;
-            a(ref testr);
-            foreach (var bl in blocks)
-                if (testr.IntersectsWith(bl)) return;
-            a(ref rect);
-        }
+            if (actorrect.Bottom > Form1.BoundsRect.Bottom) { actorrect.Y = -1 * actorrect.Height; }
+            
+        }                
 
-        private void trymovedown()
+        public void CreateBullet()
         {
-            Rectangle testr = rect;
-            testr.Y += downspeed;
-            foreach (var b in blocks)
-                if (b.IntersectsWith(testr)) { gravity = false; downspeed = 0; return; }
-            gravity = true;
-            rect.Y += downspeed;
-        }
-
-        public void createbullet()
-        {
-            int yb = rect.Y + (crouch ? rect.Height-8 : rect.Height/2);
-            PointClass p = new PointClass(rect.X + rect.Width, yb);
-            p.Direction = 1 - Convert.ToInt32(flip) * 2;
+            int yb = actorrect.Y + (crouch ? actorrect.Height-8 : actorrect.Height/2);
+            PointClass p = new PointClass(actorrect.X + actorrect.Width, yb);
+            p.Direction = 1 - flip * 2;
             bullets.Add(p);
-        }
-
-        public void Flip() { character1.RotateFlip(RotateFlipType.RotateNoneFlipX); character2.RotateFlip(RotateFlipType.RotateNoneFlipX); }
-
-        public void draw(Graphics g) { g.DrawImage(character, rect); }
+        }       
+        
+        public async void HandleGroundPound()
+        {
+            if (onground) return;
+            groundpound = true;
+            downspeed = 20;
+            await Task.Factory.StartNew(() => { while (!onground) { } });
+            groundpound = false;
+        } 
+        
     }
 }

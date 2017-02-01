@@ -38,6 +38,8 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.TabIndex = 0;
             this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.paint);
+            this.panel1.MouseDown += mousedown;
+            this.panel1.MouseUp += mouseup;
             // 
             // Form1
             // 
@@ -46,10 +48,10 @@
             this.ClientSize = new System.Drawing.Size(960, 720);
             this.Controls.Add(this.panel1);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Simple Platformer";            
             this.Load += new System.EventHandler(this.load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.keypress);
-            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.keyrelease);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.keyrelease);            
             this.ResumeLayout(false);
 
         }
