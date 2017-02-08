@@ -29,7 +29,8 @@ namespace SimpleGame
         public PointClass(int i1,int i2) { X = i1; Y = i2; }
 
         public PointClass Copy() { return (PointClass)MemberwiseClone(); }
-        public Point ToPoint() { return new Point(X, Y); }
+
+        public static implicit operator Point(PointClass p) => new Point(p.X, p.Y);
     }    
 
     public partial class Form1 : Form
@@ -39,21 +40,9 @@ namespace SimpleGame
 
         //Player p = new Player();
         public static Rectangle BoundsRect;
+        
 
-        public static readonly Brush[] bulletcolors =
-        {
-            Brushes.Red,
-            Brushes.Yellow,
-            Brushes.Orange,
-            Brushes.Blue,
-            Brushes.Cyan,
-            Brushes.ForestGreen,
-            Brushes.LightGreen,
-            Brushes.LightGray,
-            Brushes.Magenta
-        };
-
-        Rectangle nullrect = new Rectangle(-1000, -1000, 0, 0);        
+        //static readonly Rectangle nullrect = Rectangle.Empty;        
 
         ulong ticknum = 0;
         
@@ -63,16 +52,17 @@ namespace SimpleGame
         int collectedcoins = 0;
 
         Point pointdown = Point.Empty;
+        Point tempp2 = Point.Empty;        
 
         public Form1()
         {
             InitializeComponent();
             BoundsRect = Bounds;
             blocks.Add(new Rectangle(0, 200, 300, 20));
-            blocks.Add(new Rectangle(100, 400, 300, 20));
-            AddFBlock(new Rectangle(280, 395, 20, 5));
-            AddFBlock(new Rectangle(350, 395, 20, 5));
-            AddFBlock(new Rectangle(550, 90, 40, 80));
+            blocks.Add(new Rectangle(100, 400, 300, 20));            
+            blocks.Add(new Block(new Rectangle(180, 395, 20, 5), true));
+            blocks.Add(new Block(new Rectangle(350, 395, 20, 5), true));
+            blocks.Add(new Block(new Rectangle(550, 90, 40, 80), true));
             coins.Add(new PointClass(200, 180));
             coins.Add(new PointClass(400, 390));
             coins.Add(new PointClass(450, 340));
@@ -91,17 +81,17 @@ namespace SimpleGame
         {
             var g = e.Graphics;
             foreach (var p in bullets)
-                g.FillEllipse(bulletcolors[bulletstate], p.X - bulletradius, p.Y - bulletradius, bulletradius, bulletradius);
+                g.FillEllipse(Bullet.bulletcolors[p.BulletType], p.Pos.X - bulletradius, p.Pos.Y - bulletradius, bulletradius, bulletradius);
             for (int i = 0; i < coins.Count; i++)
                 if (!collected[i]) g.FillEllipse(Brushes.Gold, coins[i].X - bulletradius, coins[i].Y - bulletradius, bulletradius, bulletradius);
             foreach (var en in enemies) en.Draw(g);
-            for (int i = 0; i < blocks.Count; i++)
-                if (fragile[i]) g.FillRectangle(Brushes.Brown, blocks[i]); else g.DrawRectangle(Pens.Black, blocks[i]);
+            //for (int i = 0; i < blocks.Count; i++)
+            //    if (fragile[i]) g.FillRectangle(Brushes.Brown, blocks[i]); else g.FillRectangle(Brushes.SlateGray, blocks[i]);
+            foreach (var b in blocks) g.FillRectangle(b.Fragile ? Brushes.SlateGray : Brushes.Brown, b.Rect);
             player.Draw(g);
             g.DrawString("COINS: " + collectedcoins.ToString(), dispfont, Brushes.Green, 550, 0);
             if (gameover) g.DrawString("Gameover", dispfont, Brushes.Crimson, 300, 100);
-            g.DrawString(groundpound.ToString(), dispfont, Brushes.Black, 550, 20);
-
+            g.DrawString(player.OnGround.ToString(), dispfont, Brushes.Black, 550, 20);
         }
 
         private void keypress(object sender, KeyEventArgs e)
@@ -110,17 +100,18 @@ namespace SimpleGame
             GetKeyboardState(keys);
             if ((keys[(int)Keys.Right] & 128) == 128)
             {
-                player.TryMove((ref Rectangle r) => r.X += speed);
+                if (!player.crouch) player.TryMove((ref Rectangle r) => r.X += speed);
                 player.flip = 0;
             }
             if ((keys[(int)Keys.Left] & 128) == 128)
             {
-                player.TryMove((ref Rectangle r) => r.X -= speed);
+                if(!player.crouch) player.TryMove((ref Rectangle r) => r.X -= speed);
                 player.flip = 1;
             }
             if ((keys[(int)Keys.Up] & 128) == 128)
             {
-                player.TryMove((ref Rectangle r) => { if (!player.jump) player.downspeed = -8; player.jump = true; });
+                //player.TryMove((ref Rectangle r) => player.Jump());
+                player.Jump();
             }
             if ((keys[(int)Keys.Down] & 128) == 128)
             {
@@ -159,10 +150,11 @@ namespace SimpleGame
 
         private void mouseup(object sender, MouseEventArgs e)
         {
-            Size size = (Size)(e.Location - (Size)pointdown);
-            Rectangle mouserect = new Rectangle(pointdown, size);
-            if (shift) AddFBlock(mouserect);
-            else blocks.Add(mouserect);                        
+            tempp2 = e.Location;
+            Rectangle mouserect = pointdown.MakeRect(e.Location);
+            if (mouserect.Width < 20 || mouserect.Height < 20) return;
+
+            blocks.Add(new Block(mouserect, shift));
         }
 
         private void Step(object s, EventArgs e)
@@ -170,40 +162,16 @@ namespace SimpleGame
             player.Step(ticknum);                 
             //if (p.previousflip != p.flip)
             //    p.Flip();           
-            for(int i=0;i<bullets.Count;i++)
+            //for(int i=0;i<bullets.Count;i++)
+            foreach(var bu in bullets)
             {
-                //bullets[i].Item1.X += bullets[i].Item2 * 4;
-                var pt = trymovepoint(bullets[i], po => po.X += po.Direction * 4);
-                if (pt != -1 && fragile[pt])
-                {
-                    blocks[pt] = nullrect;
-                    bullets.RemoveAt(i);
-                }
-                else
-                {
-                    for(int j=0;j<enemies.Count;j++)
-                    {
-                        if (enemies[j].actorrect.Contains(bullets[i].ToPoint())){
-                            enemies[j].Hit();
-                            bullets.RemoveAt(i);
-                        }
-                    }
-                    //foreach(var enm in enemies)
-                    //{
-                    //    if (enm.actorrect.Contains(bullets[i].ToPoint()))
-                    //    {
-                    //        enm.Hit();
-                    //        bullets[i].SetKilledInList();
-                    //    }
-                    //}
-                }
-                
+                bu.Step();
             }
             //foreach (var en in enemies) en.Step(ticknum);
             for (int i = 0; i < enemies.Count; i++) enemies[i].Step(ticknum);
             for (int i = 0; i < coins.Count; i++)
             {
-                if (player.actorrect.Contains(coins[i].ToPoint()) && !collected[i])
+                if (player.actorrect.Contains(coins[i]) && !collected[i])
                 {
                     collected[i] = true;
                     collectedcoins++;
@@ -211,35 +179,14 @@ namespace SimpleGame
             }
 
             int c = bullets.Count;
-            for (int i = 0; i < c; i++)
-                if (!panel1.Bounds.Contains(bullets[i].ToPoint()))
-                {
-                    bullets.RemoveAt(i);
-                    c = bullets.Count;
-                }
+            foreach (var bu in bullets) if (!Form1.BoundsRect.Contains(bu.Pos)) bu.IsMarkedKilled = true;
 
-
-            player.previousflip = player.flip;
+            foreach (var dl in DeleteLists) dl.ClearList();
+            
+            
+            
             panel1.Invalidate();
             ticknum++;                        
-        }
-
-        
-
-        
-
-        
-
-        private int trymovepoint(PointClass p, Action<PointClass> pa)
-        {
-            PointClass testp = p.Copy();
-            //PointClass testp = p;
-            pa(testp);
-            for (int i = 0; i < blocks.Count; i++)
-                if (blocks[i].Contains(p.ToPoint()))
-                    return i;
-            pa(p);
-            return -1;
         }
 
         

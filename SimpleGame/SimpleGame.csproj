@@ -48,8 +48,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actor.cs" />
+    <Compile Include="Block.cs" />
+    <Compile Include="Bullet.cs" />
     <Compile Include="DeleteList.cs" />
     <Compile Include="Enemy.cs" />
+    <Compile Include="IDeleteList.cs" />
     <Compile Include="IMarkDelete.cs" />
     <Compile Include="Values.cs" />
     <Compile Include="Form1.cs">
@@ -88,13 +91,15 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="char.png">
+    <Content Include="Images\char.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="charcrouch.png">
+    <Content Include="Images\charcrouch.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="enemy.png" />
+    <Content Include="Images\enemy1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -7,23 +7,16 @@ using System.Timers;
 
 namespace SimpleGame
 {
-    public class DeleteList<T> : List<T> where T : IMarkDelete
-    {
-        Timer timer1 = new Timer(10);
+    public class DeleteList<T> : List<T>, IDeleteList where T : IMarkDelete
+    {        
 
-        public DeleteList()
-        {
-            timer1.Elapsed += Timer1_Elapsed;
-            timer1.Start();
+        public DeleteList() {
+            Values.DeleteLists.Add(this);
         }
-
-        private void Timer1_Elapsed(object sender, ElapsedEventArgs e)
+        
+        public void ClearList()
         {
-            for(int i = 0; i < Count; i++)
-            {
-                if (this[i].IsMarkedKilled)
-                    Remove(this[i]);
-            }
+            RemoveAll(x => x.IsMarkedKilled);
         }
     }
 }

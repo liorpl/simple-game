@@ -11,13 +11,13 @@ namespace SimpleGame
 {
     public class Enemy : Actor
     {
-        const int SPEED= 5;
+        const int SPEED = 3;
 
-        private static Size enemysize = new Size(32, 32);        
+        private static Size enemysize = new Size(32, 32);
 
-        public Enemy(Point startpoint) : base(new Rectangle(startpoint, enemysize))
-        {
-            images[0] = new Bitmap("enemy.png");
+        public Enemy(Point startpoint) : base(startpoint, new Bitmap[]{ new Bitmap(@"Images\enemy1.png") })
+        {            
+            flipping = true;
         }
 
         //public bool IsMarkedKilled { get; private set; }
@@ -31,10 +31,10 @@ namespace SimpleGame
         public override void Step(ulong ticknum)
         {
             base.Step(ticknum);
-            if (onground) TryMove((ref Rectangle r) => r.X += direction * SPEED);
+            if (OnGround) TryMove((ref Rectangle r) => r.X += Direction * SPEED);
             if (actorrect.IntersectsWith(player.actorrect))
             {
-                if (groundpound)
+                if (player.GroundPound)
                 {
                     Hit();
                 }
@@ -51,16 +51,5 @@ namespace SimpleGame
             //}            
         }
 
-        public override void TryMove(RectAction a)
-        {
-            Rectangle testr = actorrect;
-            a(ref testr);
-            foreach (var bl in blocks)
-            {
-                if (testr.IntersectsWith(bl)) { flip ^= 1; return; }
-            }
-            a(ref actorrect);
-
-        }
     }
 }

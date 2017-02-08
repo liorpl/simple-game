@@ -10,16 +10,12 @@ namespace SimpleGame
 {
     public class Player : Actor
     {
-        //Bitmap character1 = new Bitmap("char.png");
-        //Bitmap character2 = new Bitmap("charcrouch.png");
+        
+        public bool GroundPound { get; private set; }
 
-        //Bitmap character => crouch ? character2 : character1;
-
-
-        public Player() : base(new Rectangle(10, 10, 64, 64))
+        public Player() : base(Point.Empty, new Bitmap[] { new Bitmap(@"Images\char.png"), new Bitmap(@"Images\charcrouch.png") })
         {
-            images[0] = new Bitmap("char.png");
-            images[1] = new Bitmap("charcrouch.png");
+            
         }
 
         public bool crouch = false;
@@ -30,25 +26,25 @@ namespace SimpleGame
             currentchar = Convert.ToInt32(crouch);
             
 
-            if (actorrect.Bottom > Form1.BoundsRect.Bottom) { actorrect.Y = -1 * actorrect.Height; }
+            
             
         }                
 
         public void CreateBullet()
         {
-            int yb = actorrect.Y + (crouch ? actorrect.Height-8 : actorrect.Height/2);
+            int yb = actorrect.Y + (crouch ? actorrect.Height - 8 : actorrect.Height / 2);
             PointClass p = new PointClass(actorrect.X + actorrect.Width, yb);
             p.Direction = 1 - flip * 2;
-            bullets.Add(p);
+            bullets.Add(new Bullet { Pos = p, BulletType = bulletstate });
         }       
         
         public async void HandleGroundPound()
         {
-            if (onground) return;
-            groundpound = true;
-            downspeed = 20;
-            await Task.Factory.StartNew(() => { while (!onground) { } });
-            groundpound = false;
+            if (OnGround) return;
+            GroundPound = true;
+            downspeed = 50;
+            await Task.Factory.StartNew(() => { while (!OnGround) { } });
+            GroundPound = false;
         } 
         
     }
