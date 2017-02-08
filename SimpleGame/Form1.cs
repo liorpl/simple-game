@@ -87,7 +87,7 @@ namespace SimpleGame
             foreach (var en in enemies) en.Draw(g);
             //for (int i = 0; i < blocks.Count; i++)
             //    if (fragile[i]) g.FillRectangle(Brushes.Brown, blocks[i]); else g.FillRectangle(Brushes.SlateGray, blocks[i]);
-            foreach (var b in blocks) g.FillRectangle(b.Fragile ? Brushes.SlateGray : Brushes.Brown, b.Rect);
+            foreach (var b in blocks) g.FillRectangle(b.Fragile ? Brushes.SlateGray : Brushes.Brown, b.Rect);            
             player.Draw(g);
             g.DrawString("COINS: " + collectedcoins.ToString(), dispfont, Brushes.Green, 550, 0);
             if (gameover) g.DrawString("Gameover", dispfont, Brushes.Crimson, 300, 100);
@@ -160,9 +160,7 @@ namespace SimpleGame
         private void Step(object s, EventArgs e)
         {
             player.Step(ticknum);                 
-            //if (p.previousflip != p.flip)
-            //    p.Flip();           
-            //for(int i=0;i<bullets.Count;i++)
+
             foreach(var bu in bullets)
             {
                 bu.Step();
@@ -178,8 +176,7 @@ namespace SimpleGame
                 }
             }
 
-            int c = bullets.Count;
-            foreach (var bu in bullets) if (!Form1.BoundsRect.Contains(bu.Pos)) bu.IsMarkedKilled = true;
+            int c = bullets.Count;            
 
             foreach (var dl in DeleteLists) dl.ClearList();
             

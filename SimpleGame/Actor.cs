@@ -20,7 +20,7 @@ namespace SimpleGame
         protected int currentchar = 0;
         protected bool flipping = false;
 
-        public Block LastGroundBlock { get; private set; }
+        public Block LastGroundBlock { get; private set; } = Rectangle.Empty;
 
         public Rectangle actorrect = new Rectangle();        
 
@@ -44,7 +44,7 @@ namespace SimpleGame
             Rectangle testr = actorrect;
             testr.Y += downspeed + 1;
             foreach (var b in blocks)
-                if (b.Rect.IntersectsWith(testr)) { downspeed = 1; OnGround = true; return false; }
+                if (b.Rect.IntersectsWith(testr)) { downspeed = 1; OnGround = true; LastGroundBlock = b; return false; }
             actorrect.Y += downspeed;
             OnGround = false;
             return true;

@@ -44,6 +44,8 @@ namespace SimpleGame
             GroundPound = true;
             downspeed = 50;
             await Task.Factory.StartNew(() => { while (!OnGround) { } });
+            if (LastGroundBlock.Rect != Rectangle.Empty && LastGroundBlock.Fragile)
+                LastGroundBlock.Clear();
             GroundPound = false;
         } 
         
