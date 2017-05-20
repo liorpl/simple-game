@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actor.cs" />
+    <Compile Include="AnimatedBitmap.cs" />
     <Compile Include="Block.cs" />
     <Compile Include="Bullet.cs" />
     <Compile Include="DeleteList.cs" />
@@ -91,12 +92,16 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Images\blockfragile.png" />
+    <Content Include="Images\blocknormal.png" />
     <Content Include="Images\char.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Images\charcrouch.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Images\chargp.png" />
+    <Content Include="Images\coin.png" />
     <Content Include="Images\enemy1.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -22,30 +22,43 @@ namespace SimpleGame
 
         public Block LastGroundBlock { get; private set; } = Rectangle.Empty;
 
-        public Rectangle actorrect = new Rectangle();        
+        private Point position;
+        public Rectangle ActorRect => new Rectangle(position, images[0].Size);
+        //public Rectangle ActorRect = new Rectangle();        
 
         public Actor(Point startpoint, Bitmap[] ims)
         {
             images = ims;
-            actorrect = new Rectangle(startpoint, Size.Round(images[0].PhysicalDimension));
+            position = startpoint;
+            //ActorRect = new Rectangle(startpoint, Size.Round(images[0].PhysicalDimension));
         }
 
-        public virtual void TryMove(RectAction a)
+        //public virtual void TryMove(RectAction a)
+        //{
+        //    Rectangle testr = ActorRect;
+        //    a(ref testr);
+        //    foreach (var bl in blocks)
+        //        if (bl.Rect.IntersectsWith(testr)) { if (flipping) flip^=1; return; }
+        //    a(ref ActorRect);
+        //}
+
+        public void TryMove(Func<Point,Point> a)
         {
-            Rectangle testr = actorrect;
-            a(ref testr);
+            Point testp = position;
+            testp = a(testp);
+            Rectangle testr = new Rectangle(testp, images[currentchar].Size);
             foreach (var bl in blocks)
-                if (bl.Rect.IntersectsWith(testr)) { if (flipping) flip^=1; return; }
-            a(ref actorrect);
+                if (bl.Rect.IntersectsWith(testr)) { if (flipping) flip ^= 1; return; }
+            position = a(position);
         }
 
         public bool TryMoveDown()
         {
-            Rectangle testr = actorrect;
+            Rectangle testr = ActorRect;
             testr.Y += downspeed + 1;
             foreach (var b in blocks)
                 if (b.Rect.IntersectsWith(testr)) { downspeed = 1; OnGround = true; LastGroundBlock = b; return false; }
-            actorrect.Y += downspeed;
+            position.Y += downspeed;
             OnGround = false;
             return true;
         }
@@ -62,12 +75,12 @@ namespace SimpleGame
             TryMoveDown();
             if (previousflip != flip) Flip();
             
-            if (actorrect.Bottom > Form1.BoundsRect.Bottom) { actorrect.Y = -1 * actorrect.Height; }
+            if (ActorRect.Bottom > Form1.BoundsRect.Bottom) { position.Y = -1 * ActorRect.Height; }
             previousflip = flip;
         }
 
         public void Flip() { foreach (var i in images) i?.RotateFlip(RotateFlipType.RotateNoneFlipX); }
 
-        public void Draw(Graphics g) { g.DrawImage(images[currentchar], actorrect); }
+        public void Draw(Graphics g) { g.DrawImage(images[currentchar], ActorRect); }
     }
 }

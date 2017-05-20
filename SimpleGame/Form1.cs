@@ -10,8 +10,7 @@ using System.Windows.Forms;
 using static SimpleGame.Values;
 
 namespace SimpleGame
-{
-    public delegate void RectAction(ref Rectangle r);    
+{ 
 
     class DBPanel : Panel
     {
@@ -21,28 +20,11 @@ namespace SimpleGame
         }        
     }
 
-    public class PointClass
-    {
-        public int X;
-        public int Y;
-        public int Direction; //Used in moving points
-        public PointClass(int i1,int i2) { X = i1; Y = i2; }
-
-        public PointClass Copy() { return (PointClass)MemberwiseClone(); }
-
-        public static implicit operator Point(PointClass p) => new Point(p.X, p.Y);
-    }    
-
     public partial class Form1 : Form
-    {
-        //readonly Font dispfont = new Font("Arial", 22);
-        readonly Font dispfont = new Font("Palatino Linotype", 22);
+    {        
+        readonly Font dispfont = new Font("Bauhaus 93", 22);
 
-        //Player p = new Player();
-        public static Rectangle BoundsRect;
-        
-
-        //static readonly Rectangle nullrect = Rectangle.Empty;        
+        public static Rectangle BoundsRect;               
 
         ulong ticknum = 0;
         
@@ -52,8 +34,8 @@ namespace SimpleGame
         int collectedcoins = 0;
 
         Point pointdown = Point.Empty;
-        Point tempp2 = Point.Empty;        
 
+        //Bitmap cointex;
         public Form1()
         {
             InitializeComponent();
@@ -63,14 +45,15 @@ namespace SimpleGame
             blocks.Add(new Block(new Rectangle(180, 395, 20, 5), true));
             blocks.Add(new Block(new Rectangle(350, 395, 20, 5), true));
             blocks.Add(new Block(new Rectangle(550, 90, 40, 80), true));
-            coins.Add(new PointClass(200, 180));
-            coins.Add(new PointClass(400, 390));
-            coins.Add(new PointClass(450, 340));
+            coins.Add(new Point(200, 180));
+            coins.Add(new Point(400, 390));
+            coins.Add(new Point(450, 340));
             enemies.Add(new Enemy(new Point(310, 220)));            
         }
 
         private void load(object sender, EventArgs e)
         {
+            //cointex = new Bitmap(@"Images\coin.png");
             timer = new Timer();
             timer.Interval = 1;
             timer.Tick += Step;
@@ -84,14 +67,12 @@ namespace SimpleGame
                 g.FillEllipse(Bullet.bulletcolors[p.BulletType], p.Pos.X - bulletradius, p.Pos.Y - bulletradius, bulletradius, bulletradius);
             for (int i = 0; i < coins.Count; i++)
                 if (!collected[i]) g.FillEllipse(Brushes.Gold, coins[i].X - bulletradius, coins[i].Y - bulletradius, bulletradius, bulletradius);
-            foreach (var en in enemies) en.Draw(g);
-            //for (int i = 0; i < blocks.Count; i++)
-            //    if (fragile[i]) g.FillRectangle(Brushes.Brown, blocks[i]); else g.FillRectangle(Brushes.SlateGray, blocks[i]);
+            foreach (var en in enemies) en.Draw(g);            
             foreach (var b in blocks) g.FillRectangle(b.Fragile ? Brushes.SlateGray : Brushes.Brown, b.Rect);            
             player.Draw(g);
             g.DrawString("COINS: " + collectedcoins.ToString(), dispfont, Brushes.Green, 550, 0);
             if (gameover) g.DrawString("Gameover", dispfont, Brushes.Crimson, 300, 100);
-            g.DrawString(player.OnGround.ToString(), dispfont, Brushes.Black, 550, 20);
+            //g.DrawString(player.OnGround.ToString(), dispfont, Brushes.Black, 550, 20);
         }
 
         private void keypress(object sender, KeyEventArgs e)
@@ -100,12 +81,14 @@ namespace SimpleGame
             GetKeyboardState(keys);
             if ((keys[(int)Keys.Right] & 128) == 128)
             {
-                if (!player.crouch) player.TryMove((ref Rectangle r) => r.X += speed);
+                //if (!player.crouch) player.TryMove((ref Rectangle r) => r.X += speed);
+                if (!player.crouch) player.TryMove(p => new Point(p.X + speed, p.Y));
                 player.flip = 0;
             }
             if ((keys[(int)Keys.Left] & 128) == 128)
             {
-                if(!player.crouch) player.TryMove((ref Rectangle r) => r.X -= speed);
+                //if(!player.crouch) player.TryMove((ref Rectangle r) => r.X -= speed);
+                if (!player.crouch) player.TryMove(p => new Point(p.X - speed, p.Y));
                 player.flip = 1;
             }
             if ((keys[(int)Keys.Up] & 128) == 128)
@@ -121,7 +104,7 @@ namespace SimpleGame
             {
                 player.CreateBullet();
             }
-            if((keys[(int)Keys.Z]& 128) == 128)
+            if((keys[(int)Keys.Z] & 128) == 128)
             {
                 player.HandleGroundPound();
             }
@@ -150,7 +133,6 @@ namespace SimpleGame
 
         private void mouseup(object sender, MouseEventArgs e)
         {
-            tempp2 = e.Location;
             Rectangle mouserect = pointdown.MakeRect(e.Location);
             if (mouserect.Width < 20 || mouserect.Height < 20) return;
 
@@ -169,7 +151,7 @@ namespace SimpleGame
             for (int i = 0; i < enemies.Count; i++) enemies[i].Step(ticknum);
             for (int i = 0; i < coins.Count; i++)
             {
-                if (player.actorrect.Contains(coins[i]) && !collected[i])
+                if (player.ActorRect.Contains(coins[i]) && !collected[i])
                 {
                     collected[i] = true;
                     collectedcoins++;

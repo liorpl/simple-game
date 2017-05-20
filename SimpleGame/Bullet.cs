@@ -10,6 +10,8 @@ namespace SimpleGame
 {
     public class Bullet : IMarkDelete
     {
+        const int SPEED = 4;
+
         public static readonly Brush[] bulletcolors =
         {
             Brushes.Red,
@@ -24,13 +26,14 @@ namespace SimpleGame
         };
 
         public bool IsMarkedKilled { get; set; } = false;       
-        public PointClass Pos { get; set; }
+        public Point Pos { get; set; }
+        public int Direction { get; set; }
         public int BulletType { get; set; } = 0;
 
         public void Step()
         {
             //bullets[i].Item1.X += bullets[i].Item2 * 4;
-            var blk = trymove(po => po.X += po.Direction * 4);
+            var blk = trymove(p => new Point(p.X + Direction * SPEED, p.Y));
             if (blk != null)
             {
                 IsMarkedKilled = true;
@@ -40,7 +43,7 @@ namespace SimpleGame
             {
                 for (int j = 0; j < enemies.Count; j++)
                 {
-                    if (enemies[j].actorrect.Contains(Pos))
+                    if (enemies[j].ActorRect.Contains(Pos))
                     {
                         enemies[j].Hit();
                         //bullets.RemoveAt(i);
@@ -53,17 +56,14 @@ namespace SimpleGame
                 IsMarkedKilled = true;
         }
 
-        private Block trymove(Action<PointClass> pa)
+        private Block trymove(Func<Point, Point> pa)
         {
-            PointClass testp = Pos.Copy();
-            //PointClass testp = p;
-            pa(testp);
-            //for (int i = 0; i < blocks.Count; i++)
-            //    if (blocks[i].Contains(p.ToPoint()))
-            //        return i;
+            var testp = Pos;
+            testp = pa(testp);
+
             foreach (var b in blocks)
                 if (b.Rect.Contains(Pos)) return b;
-            pa(Pos);
+            Pos = pa(Pos);
             return null;
         }
 

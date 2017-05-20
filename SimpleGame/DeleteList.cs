@@ -9,7 +9,6 @@ namespace SimpleGame
 {
     public class DeleteList<T> : List<T>, IDeleteList where T : IMarkDelete
     {        
-
         public DeleteList() {
             Values.DeleteLists.Add(this);
         }

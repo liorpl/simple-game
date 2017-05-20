@@ -25,14 +25,15 @@ namespace SimpleGame
         public void Hit()
         {
             enemies.Remove(this);
-            coins.Add(new PointClass(actorrect.X + actorrect.Width / 2, actorrect.Y + actorrect.Height / 2));
+            coins.Add(new Point(ActorRect.X + ActorRect.Width / 2, ActorRect.Y + ActorRect.Height / 2));
         }
 
         public override void Step(ulong ticknum)
         {
             base.Step(ticknum);
-            if (OnGround) TryMove((ref Rectangle r) => r.X += Direction * SPEED);
-            if (actorrect.IntersectsWith(player.actorrect))
+            //if (OnGround) TryMove((ref Rectangle r) => r.X += Direction * SPEED);
+            if (OnGround) TryMove(p => new Point(p.X + Direction * SPEED, p.Y));
+            if (ActorRect.IntersectsWith(player.ActorRect))
             {
                 if (player.GroundPound)
                 {

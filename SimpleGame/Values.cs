@@ -27,7 +27,7 @@ namespace SimpleGame
 
         public static DeleteList<Bullet> bullets = new DeleteList<Bullet>();
         //public static int[] bullettypes = new int[65536];
-        public static List<PointClass> coins = new List<PointClass>();
+        public static List<Point> coins = new List<Point>();
         public static bool[] collected = new bool[65536];
         //public static List<Rectangle> blocks = new List<Rectangle>();
         //public static bool[] fragile = new bool[65536];
