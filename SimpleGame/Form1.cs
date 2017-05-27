@@ -35,14 +35,19 @@ namespace SimpleGame
 
         Point pointdown = Point.Empty;
 
-        //Bitmap cointex;
+        Bitmap cointex = new Bitmap(@"Images\coin.png");
+        Bitmap blocknormaltex = new Bitmap(@"Images\blocknormal.png");        
+        Bitmap blockfragiletex = new Bitmap(@"Images\blockfragile.png");
+        Brush blocknormal, blockfragile;
         public Form1()
         {
             InitializeComponent();
+            blocknormal = new TextureBrush(blocknormaltex);
+            blockfragile = new TextureBrush(blockfragiletex);
             BoundsRect = Bounds;
             blocks.Add(new Rectangle(0, 200, 300, 20));
             blocks.Add(new Rectangle(100, 400, 300, 20));            
-            blocks.Add(new Block(new Rectangle(180, 395, 20, 5), true));
+            blocks.Add(new Block(new Rectangle(140, 395, 20, 5), true));
             blocks.Add(new Block(new Rectangle(350, 395, 20, 5), true));
             blocks.Add(new Block(new Rectangle(550, 90, 40, 80), true));
             coins.Add(new Point(200, 180));
@@ -52,8 +57,7 @@ namespace SimpleGame
         }
 
         private void load(object sender, EventArgs e)
-        {
-            //cointex = new Bitmap(@"Images\coin.png");
+        {            
             timer = new Timer();
             timer.Interval = 1;
             timer.Tick += Step;
@@ -66,13 +70,13 @@ namespace SimpleGame
             foreach (var p in bullets)
                 g.FillEllipse(Bullet.bulletcolors[p.BulletType], p.Pos.X - bulletradius, p.Pos.Y - bulletradius, bulletradius, bulletradius);
             for (int i = 0; i < coins.Count; i++)
-                if (!collected[i]) g.FillEllipse(Brushes.Gold, coins[i].X - bulletradius, coins[i].Y - bulletradius, bulletradius, bulletradius);
-            foreach (var en in enemies) en.Draw(g);            
-            foreach (var b in blocks) g.FillRectangle(b.Fragile ? Brushes.SlateGray : Brushes.Brown, b.Rect);            
-            player.Draw(g);
-            g.DrawString("COINS: " + collectedcoins.ToString(), dispfont, Brushes.Green, 550, 0);
+                if (!collected[i]) g.DrawImage(cointex, coins[i]);            
+            foreach (var en in enemies) en.Draw(g);
+            foreach (var b in blocks) g.FillRectangle(b.Fragile ? blockfragile : blocknormal, b.Rect);
+            player.Draw(g);            
+            g.DrawString("COINS: " + collectedcoins.ToString(), dispfont, Brushes.Green, 550, 30);
+            g.DrawString("LIVES: " + player.Lives.ToString(), dispfont, Brushes.Red, 550, 0);
             if (gameover) g.DrawString("Gameover", dispfont, Brushes.Crimson, 300, 100);
-            //g.DrawString(player.OnGround.ToString(), dispfont, Brushes.Black, 550, 20);
         }
 
         private void keypress(object sender, KeyEventArgs e)
@@ -98,7 +102,7 @@ namespace SimpleGame
             }
             if ((keys[(int)Keys.Down] & 128) == 128)
             {
-                player.crouch = true;
+                if(player.OnGround) player.crouch = true;
             }
             if ((keys[(int)Keys.Space] & 128) == 128)
             {
@@ -106,7 +110,7 @@ namespace SimpleGame
             }
             if((keys[(int)Keys.Z] & 128) == 128)
             {
-                player.HandleGroundPound();
+                if(!player.GroundPound) player.HandleGroundPound();
             }
             for(int i=0;i<9;i++)
             {
@@ -158,12 +162,8 @@ namespace SimpleGame
                 }
             }
 
-            int c = bullets.Count;            
-
             foreach (var dl in DeleteLists) dl.ClearList();
-            
-            
-            
+                        
             panel1.Invalidate();
             ticknum++;                        
         }

@@ -11,9 +11,9 @@ namespace SimpleGame
     public abstract class Actor
     {
         public int flip, previousflip = 0;
-        public int Direction { get { return flip * 2 - 1; } }
+        public int Direction => flip * 2 - 1;
         protected bool gravity = false;
-        protected int downspeed = 0;        
+        protected int downspeed = 1;        
         public bool OnGround { get; protected set; }
 
         protected Bitmap[] images = new Bitmap[8];
@@ -24,23 +24,12 @@ namespace SimpleGame
 
         private Point position;
         public Rectangle ActorRect => new Rectangle(position, images[0].Size);
-        //public Rectangle ActorRect = new Rectangle();        
 
         public Actor(Point startpoint, Bitmap[] ims)
         {
             images = ims;
             position = startpoint;
-            //ActorRect = new Rectangle(startpoint, Size.Round(images[0].PhysicalDimension));
         }
-
-        //public virtual void TryMove(RectAction a)
-        //{
-        //    Rectangle testr = ActorRect;
-        //    a(ref testr);
-        //    foreach (var bl in blocks)
-        //        if (bl.Rect.IntersectsWith(testr)) { if (flipping) flip^=1; return; }
-        //    a(ref ActorRect);
-        //}
 
         public void TryMove(Func<Point,Point> a)
         {
@@ -55,9 +44,9 @@ namespace SimpleGame
         public bool TryMoveDown()
         {
             Rectangle testr = ActorRect;
-            testr.Y += downspeed + 1;
+            testr.Y += downspeed;
             foreach (var b in blocks)
-                if (b.Rect.IntersectsWith(testr)) { downspeed = 1; OnGround = true; LastGroundBlock = b; return false; }
+                if (b.Rect.IntersectsWith(testr)) { downspeed = 1; position.Y += downspeed - 1; OnGround = true; LastGroundBlock = b; return false; }
             position.Y += downspeed;
             OnGround = false;
             return true;

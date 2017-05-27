@@ -29,6 +29,7 @@ namespace SimpleGame
         public Point Pos { get; set; }
         public int Direction { get; set; }
         public int BulletType { get; set; } = 0;
+        public bool EnemyBullet { get; set; } = false;
 
         public void Step()
         {

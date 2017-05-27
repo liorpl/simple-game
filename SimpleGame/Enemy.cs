@@ -11,7 +11,7 @@ namespace SimpleGame
 {
     public class Enemy : Actor
     {
-        const int SPEED = 3;
+        const int SPEED = 1;
 
         private static Size enemysize = new Size(32, 32);
 
@@ -41,8 +41,10 @@ namespace SimpleGame
                 }
                 else
                 {
-                    gameover = true;
-                    timer.Enabled = false;
+                    //gameover = true;
+                    player.Hit();
+                    flip ^= 1;
+                    //timer.Enabled = false;
                 }
             }
             //foreach(var b in bullets)
